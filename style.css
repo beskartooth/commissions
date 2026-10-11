@@ -141,3 +141,11 @@ input[type=radio],input[type=checkbox]{accent-color:var(--purple);width:1.1rem;h
 @media (min-width:900px){.card-spicy .terms{columns:2;column-gap:2rem}.card-spicy .terms li{break-inside:avoid}.card-spicy .terms li:nth-child(4){border-top:0}}
 
 .subhead{font-size:1rem;margin:1.1rem 0 .3rem;color:var(--text)}
+
+/* Under-construction banner (remove this block + the .construction div in index.html when done) */
+.construction{display:flex;gap:.55rem;align-items:center;justify-content:center;max-width:56rem;margin:.8rem auto 0;width:calc(100% - 2rem);box-sizing:border-box;
+  padding:.55rem 1rem;border-radius:999px;border:1px solid rgba(232,189,84,.55);background:linear-gradient(90deg,rgba(232,189,84,.14),rgba(138,92,246,.16));
+  color:var(--text);font-size:.86rem;line-height:1.35;text-align:center}
+.construction b{color:var(--gold)}
+.construction a{color:var(--pink);font-weight:700}
+@media (max-width:520px){.construction{border-radius:16px;font-size:.8rem;text-align:left;justify-content:flex-start}}

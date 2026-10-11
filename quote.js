@@ -128,7 +128,7 @@
     return { text, trimmed };
   }
 
-  function dmUrl(text) { return `https://x.com/messages/compose?recipient_id=${RECIPIENT}&text=${encodeURIComponent(text)}`; }
+  function dmUrl(text) { return `https://twitter.com/messages/compose?recipient_id=${RECIPIENT}&text=${encodeURIComponent(text)}`; }
 
   function update() {
     const p = P[el.product.value];
@@ -186,16 +186,30 @@
 
   form.addEventListener('input', () => { update(); refreshError(); });
   form.addEventListener('change', () => { update(); refreshError(); });
+  function copySync(text) {
+    // Runs inside the click so browsers allow it; X drops prefilled DM text, so we copy first.
+    let ok = false;
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = text; ta.setAttribute('readonly', ''); ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select(); ta.setSelectionRange(0, text.length);
+      ok = document.execCommand('copy'); document.body.removeChild(ta);
+    } catch (e) { ok = false; }
+    try { if (navigator.clipboard) navigator.clipboard.writeText(text).catch(() => {}); ok = ok || !!navigator.clipboard; } catch (e) {}
+    return ok;
+  }
   form.addEventListener('submit', (e) => {
     e.preventDefault();
     if (!validate()) return;
-    const url = dmUrl(update());
+    const text = update();
+    const url = dmUrl(text);
     form.dataset.lastUrl = url;
-    const w = window.open(url, '_blank', 'noopener');
-    if (!w) {
-      // noopener returns null even on success; only treat it as blocked if nothing navigated.
-      el.copyStatus.textContent = 'Opening X… If nothing opened, use Copy request and DM @ToothBeskar.';
-    }
+    const copied = copySync(text);
+    el.copyStatus.textContent = copied
+      ? '✅ Request copied! In the X chat that opens, tap the message box and paste it, then send.'
+      : 'Opening X… Copy failed, so open the preview below, copy it, and paste it into the DM.';
+    if (!copied) el.preview.closest('details').open = true;
+    window.open(url, '_blank', 'noopener');
   });
   el.copyBtn.addEventListener('click', async () => {
     const text = update();

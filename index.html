@@ -29,7 +29,7 @@
 </head>
 <body>
 
-<div class="construction" role="note"><span aria-hidden="true">🚧</span> <span><b>This site is under construction.</b> Prices and details may change — DM <a href="https://x.com/ToothBeskar" target="_blank" rel="noopener">@ToothBeskar</a> if anything looks off.</span></div>
+<div class="construction" id="construction" role="note"><span class="cx-icon" aria-hidden="true">🚧</span> <span class="cx-text"><b>This site is under construction.</b> <span class="cx-full">Prices and details may change — DM <a href="https://x.com/ToothBeskar" target="_blank" rel="noopener">@ToothBeskar</a> if anything looks off.</span><span class="cx-short" aria-hidden="true">Prices may change.</span></span></div>
 
 <header class="hero">
   <div class="hero-text">
@@ -383,6 +383,12 @@ fetch('slots.json?'+Date.now()).then(function(r){return r.json()}).then(function
   t.textContent=full?('Slots full: '+d.taken+'/'+d.total+' · commissions closed for now'):('Slots: '+d.taken+'/'+d.total+' · '+(d.total-d.taken)+' open');
   el.classList.toggle('full',full);
 }).catch(function(){});
+</script>
+<script>
+/* Under-construction banner: compact once it sticks to the top */
+(function(){var b=document.getElementById('construction');if(!b)return;var t=false;
+function u(){t=false;b.classList.toggle('is-stuck',window.scrollY>60)}
+window.addEventListener('scroll',function(){if(!t){t=true;requestAnimationFrame(u)}},{passive:true});u();})();
 </script>
 </body>
 </html>

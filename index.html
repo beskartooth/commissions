@@ -32,6 +32,7 @@
 <header class="hero">
   <div class="hero-text">
     <p class="kicker">Commission sheet · by @ToothBeskar · Denver, CO</p>
+    <p class="slots" id="slots" aria-live="polite"><span class="slots-dot"></span><span id="slots-text">Slots: 1/10</span></p>
     <h1>Besky Art</h1>
     <p class="tagline">AI-assisted art, animation, music &amp; tools</p>
     <p class="lead">Everything here is AI-assisted and guided, edited and finished by me. Prices are in USD.</p>
@@ -352,5 +353,14 @@
   <p>AI-assisted work, finished by hand.</p>
 </footer>
 <script src="quote.js" defer></script>
+<script>
+/* Live slots: edit slots.json ({"taken":N,"total":M,"open":true/false}) to update. */
+fetch('slots.json?'+Date.now()).then(function(r){return r.json()}).then(function(d){
+  var el=document.getElementById('slots'),t=document.getElementById('slots-text');
+  var full=!d.open||d.taken>=d.total;
+  t.textContent=full?('Slots full: '+d.taken+'/'+d.total+' · commissions closed for now'):('Slots: '+d.taken+'/'+d.total+' · '+(d.total-d.taken)+' open');
+  el.classList.toggle('full',full);
+}).catch(function(){});
+</script>
 </body>
 </html>

@@ -122,3 +122,8 @@ input[type=radio],input[type=checkbox]{accent-color:var(--purple);width:1.1rem;h
 .preview summary{cursor:pointer;color:var(--soft);font-weight:700}
 .preview pre{white-space:pre-wrap;word-break:break-word;background:#16131d;border:1px solid var(--line);border-radius:14px;padding:.8rem;font-size:.85rem;color:#dedae6;max-height:22rem;overflow:auto}
 .sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+.slots{display:inline-flex;align-items:center;gap:.5rem;margin:0 0 .6rem;padding:.35rem .85rem;border-radius:999px;background:rgba(138,92,246,.15);border:1px solid var(--purple);font-weight:800;font-size:.95rem;color:#fff}
+.slots-dot{width:.6rem;height:.6rem;border-radius:50%;background:#4ade80;box-shadow:0 0 8px #4ade80}
+.slots.full{background:rgba(255,143,184,.12);border-color:var(--pink)}
+.slots.full .slots-dot{background:var(--pink);box-shadow:0 0 8px var(--pink)}

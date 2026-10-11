@@ -139,3 +139,5 @@ input[type=radio],input[type=checkbox]{accent-color:var(--purple);width:1.1rem;h
 .field[hidden]{display:none}
 @media (min-width:700px){.card-spicy{grid-column:1/-1}}
 @media (min-width:900px){.card-spicy .terms{columns:2;column-gap:2rem}.card-spicy .terms li{break-inside:avoid}.card-spicy .terms li:nth-child(4){border-top:0}}
+
+.subhead{font-size:1rem;margin:1.1rem 0 .3rem;color:var(--text)}

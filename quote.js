@@ -6,43 +6,14 @@
   if (!form) return;
   const $ = (id) => document.getElementById(id);
 
-  // Base prices from the commission sheet. kind: still | anim | other (for the spicy add-on)
-  const P = {
-    'img-still':  { cat: 'Images', price: 10, kind: 'still', qty: 'chars' },
-    'img-scene':  { cat: 'Images', price: 18, kind: 'still', qty: 'chars' },
-    'img-ych':    { cat: 'Images', price: 15, kind: 'still' },
-    'img-edit':   { cat: 'Images', price: 6, kind: 'still', qty: 'edits' },
-    'ref-turn':   { cat: 'AI-Ready Ref Pack', price: 25, kind: 'still' },
-    'ref-full':   { cat: 'AI-Ready Ref Pack', price: 40, kind: 'still' },
-    'ref-design': { cat: 'AI-Ready Ref Pack', price: 50, kind: 'still' },
-    'vid-idle':   { cat: 'Video & Loops', price: 35, kind: 'anim' },
-    'vid-ych':    { cat: 'Video & Loops', price: 40, kind: 'anim' },
-    'vid-clip':   { cat: 'Video & Loops', price: 50, kind: 'anim' },
-    'vid-emote':  { cat: 'Video & Loops', price: 8, kind: 'anim', qty: 'emotes' },
-    'app-reskin': { cat: 'Simple Web Apps', price: 40, kind: 'other' },
-    'app-custom': { cat: 'Simple Web Apps', price: 90, kind: 'other' },
-    'app-update': { cat: 'Simple Web Apps', price: 15, kind: 'other', qty: 'updates' },
-    'mus-loop':   { cat: 'Music', price: 20, kind: 'other', qty: 'tracks' },
-    'mus-pack':   { cat: 'Music', price: 50, kind: 'other' },
-    'sfx-one':    { cat: 'Sound Effects', price: 3, kind: 'other', qty: 'sfx' },
-    'sfx-pack':   { cat: 'Sound Effects', price: 20, kind: 'other' },
-    'ast-sprite': { cat: 'Assets', price: 25, kind: 'still' },
-    'ast-stream': { cat: 'Assets', price: 30, kind: 'still' },
-    'ast-pfp':    { cat: 'Assets', price: 15, kind: 'still' },
-    'other':      { cat: 'Other or not sure', price: null, kind: 'other' }
-  };
-  const QTY = {
-    chars:   ['Number of characters', 'Each extra character is +$8.'],
-    edits:   ['Number of edits', '$6 per change.'],
-    emotes:  ['Number of emotes', '$8 each, or 5 for $35.'],
-    updates: ['Number of updates', '$15 each.'],
-    tracks:  ['Number of tracks', '$20 per track. The 3-track pack is $50.'],
-    sfx:     ['Number of sound effects', '$3 each. A pack of 10 is $20.']
-  };
+  // Prices, labels, estimate logic and the quote code live in pricing.js (shared with verify.html).
+  const Q = window.BeskyQuote;
+  const P = Q.PRODUCTS;
+  const QTY = Q.QTY;
 
   const el = {
     product: $('q-product'), qtyWrap: $('qty-wrap'), qty: $('q-qty'), qtyLabel: $('qty-label'), qtyHint: $('qty-hint'),
-    avWrap: $('av-wrap'), av: $('q-av'), permWrap: $('perm-wrap'), perm: $('q-perm'), charFields: $('char-fields'),
+    avWrap: $('av-wrap'), av: $('q-av'), aiWrap: $('ai-wrap'), ai: $('q-ai'), permWrap: $('perm-wrap'), perm: $('q-perm'), charFields: $('char-fields'),
     adultWrap: $('adult-wrap'), adult: $('q-adult'), date: $('q-date'), norush: $('q-norush'), rush: $('q-rush'),
     commercialNote: $('commercial-note'), estText: $('est-text'), estDetail: $('est-detail'), preview: $('dm-preview'),
     error: $('form-error'), trimNote: $('trim-note'), copyBtn: $('copy-btn'), copyStatus: $('copy-status')
@@ -50,44 +21,31 @@
 
   const val = (name) => { const f = form.elements[name]; return f ? String(f.value || '').trim() : ''; };
   const radio = (name) => { const r = form.querySelector(`input[name="${name}"]:checked`); return r ? r.value : ''; };
-  const productLabel = () => { const o = el.product.selectedOptions[0]; return o && o.value ? o.textContent.trim() : ''; };
-  const qtyNum = () => Math.max(1, Math.min(99, parseInt(el.qty.value, 10) || 1));
+  const qtyNum = () => Q.clampQty(el.qty.value);
   const oneLine = (s) => s.replace(/\s*\n+\s*/g, ' / ').replace(/\s{2,}/g, ' ').trim();
   const isCommercial = () => [...form.querySelectorAll('input[name="use"][data-commercial]')].some((c) => c.checked);
   const setReq = (wrap, input, on) => { wrap.hidden = !on; input.required = on; input.disabled = !on; if (!on) input.checked = false; };
 
   function estimate() {
     const p = P[el.product.value];
-    if (!p) return null;
-    if (p.price == null) return { text: 'Quoted by DM', detail: 'Tell me what you need and I will quote it.', total: null, quoted: true };
-    const n = qtyNum();
-    let base = p.price; const parts = [];
-    if (p.qty === 'chars') { base = p.price + (n - 1) * 8; if (n > 1) parts.push(`${n - 1} extra character${n > 2 ? 's' : ''} +$${(n - 1) * 8}`); }
-    else if (p.qty === 'emotes') { base = Math.floor(n / 5) * 35 + Math.min((n % 5) * 8, 35); parts.push(`${n} emote${n > 1 ? 's' : ''}`); }
-    else if (p.qty) { base = p.price * n; if (n > 1) parts.push(`${n} × $${p.price}`); }
-    // Never estimate below the selected item's own listed price.
-    let total = Math.max(base, p.price);
-    if (el.av.checked && p.kind === 'anim') { total += 10; parts.push('sound or music +$10'); }
-    const spicy = radio('spicy') === 'yes';
-    if (spicy && p.kind === 'still') { total += 35; parts.push('spicy +$35'); }
-    else if (spicy && p.kind === 'anim') {
-      total += 45; parts.push('spicy +$45');
-      if (total < 80) { total = 80; parts.push('spicy animation minimum $80'); }
-    }
-    else if (spicy) parts.push('spicy add-on quoted by DM');
-    if (isCommercial()) { total *= 2; parts.push('commercial use 2×'); }
-    if (el.rush.checked) { total *= 1.5; parts.push('rush +50%'); }
-    total = Math.ceil(Math.max(total, p.price));
-    return { text: `Estimated from $${total}, final quote by DM`, detail: parts.length ? `Includes: ${parts.join(', ')}.` : 'Base price from the sheet.', total };
+    const est = Q.estimate({
+      product: el.product.value, qty: qtyNum(), av: el.av.checked && !!p && p.kind === 'anim',
+      aiPack: el.ai.checked && !!p && !!p.refSheet, spicy: radio('spicy') === 'yes',
+      commercial: isCommercial(), rush: el.rush.checked
+    });
+    if (!est) return null;
+    if (est.quoted) return { text: 'Quoted by DM', detail: 'Tell me what you need and I will quote it.', total: null, quoted: true };
+    return { text: est.text, detail: est.parts.length ? `Includes: ${est.parts.join(', ')}.` : 'Base price from the sheet.', total: est.total };
   }
 
   function fields() {
     const p = P[el.product.value];
     const lines = [];
     const add = (label, v, free) => { if (v) lines.push({ label, v: free ? oneLine(v) : v, free: !!free }); };
-    if (p) add('Item', p.cat === 'Other or not sure' ? 'Other or not sure' : `${productLabel()} (${p.cat})`);
+    if (p) add(Q.LABELS.item, Q.itemText(el.product.value));
     if (p && p.qty) add(QTY[p.qty][0], String(qtyNum()));
-    if (p && p.kind === 'anim' && el.av.checked) add('Add sound effects or music', 'Yes (+$10)');
+    if (p && p.kind === 'anim' && el.av.checked) add(Q.LABELS.av, 'Yes (+$10)');
+    if (p && p.refSheet && el.ai.checked) add(Q.LABELS.aiPack, 'Yes (+$15)');
     const ch = radio('character');
     add('Character', ch);
     if (ch.startsWith("Yes, someone else") && el.perm.checked) add('Permission', "I have the owner's permission");
@@ -113,31 +71,31 @@
     add('Payment', radio('pay'));
     add('Anything else', val('notes'), true);
     const est = estimate();
-    if (est && est.total != null) add('Page estimate', `from $${est.total}`);
-    else if (est && est.quoted) add('Page estimate', 'Quoted by DM');
+    if (est) add(Q.LABELS.estimate, est.quoted ? 'Quoted by DM' : `from $${est.total}`);
     if ($('q-ack').checked) add('Confirmed', 'AI-assisted, 100% upfront before work starts');
     return lines;
   }
 
-  const HEAD = 'Hi Besky! Quote request from besky commissions page:';
+  const HEAD = Q.HEAD;
+  const CODE_ROOM = 30; // room for the 'Quote code: BQ-XXXX-XXXX' line
   const TRIM = ' …[trimmed, more in DM]';
   function buildText() {
     const lines = fields();
     const render = () => [HEAD, ...lines.map((l) => `${l.label}: ${l.v}`)].join('\n');
     let text = render(); let trimmed = false;
-    while (text.length > LIMIT) {
+    while (text.length > LIMIT - CODE_ROOM) {
       const free = lines.filter((l) => l.free && l.v.length > 40 && !l.v.endsWith(TRIM));
       const pool = free.length ? free : lines.filter((l) => l.free && l.v.length > 40);
       if (!pool.length) break;
       const longest = pool.reduce((a, b) => (b.v.length > a.v.length ? b : a));
-      const over = text.length - LIMIT;
+      const over = text.length - (LIMIT - CODE_ROOM);
       const base = longest.v.endsWith(TRIM) ? longest.v.slice(0, -TRIM.length) : longest.v;
       const keep = Math.max(40, base.length - over - TRIM.length - 1);
       if (keep >= base.length) break;
       longest.v = base.slice(0, keep).trimEnd() + TRIM;
       trimmed = true; text = render();
     }
-    return { text, trimmed };
+    return { text: Q.withCode(text), trimmed };
   }
 
   function dmUrl(text) { return `https://twitter.com/messages/compose?recipient_id=${RECIPIENT}&text=${encodeURIComponent(text)}`; }
@@ -147,6 +105,7 @@
     if (p && p.qty) { el.qtyWrap.hidden = false; el.qtyLabel.textContent = QTY[p.qty][0]; el.qtyHint.textContent = QTY[p.qty][1]; }
     else { el.qtyWrap.hidden = true; }
     el.avWrap.hidden = !(p && p.kind === 'anim'); if (el.avWrap.hidden) el.av.checked = false;
+    el.aiWrap.hidden = !(p && p.refSheet); if (el.aiWrap.hidden) el.ai.checked = false;
     const ch = radio('character');
     setReq(el.permWrap, el.perm, ch.startsWith('Yes, someone else'));
     el.charFields.hidden = ch === 'Not a character piece';

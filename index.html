@@ -67,15 +67,11 @@
       <tr><td>Static YCH slot (your OC in my base)</td><td>$15</td></tr>
       <tr><td>Outfit or pose edit of your existing ref (one change)</td><td>$6</td></tr>
     </table>
-  </section>
-
-  <section class="card">
-    <h2>🧬 AI-Ready Reference Pack</h2>
-    <p class="sub">For a consistent OC in AI tools.</p>
+    <h3 class="subhead">🧬 Character design &amp; ref sheets</h3>
     <table>
-      <tr><td>Front and back turnaround (clean, white background)</td><td>$25</td></tr>
-      <tr><td>Turnaround plus a markings and fur checklist plus a tested prompt pack</td><td>$40</td></tr>
-      <tr><td>New character design + ref sheet (front/back turnaround, colors, markings checklist)</td><td>$50</td></tr>
+      <tr><td>New character design + ref sheet (designed from scratch: front/back turnaround, colors, markings)</td><td>$50</td></tr>
+      <tr><td>Ref sheet of your existing character (front/back turnaround matched to your refs)</td><td>$40</td></tr>
+      <tr><td>AI-ready pack add-on (markings checklist + tested prompt pack), on either ref sheet</td><td>+$15</td></tr>
     </table>
   </section>
 
@@ -133,7 +129,7 @@
   <section class="card card-gold">
     <h2>➕ Add-ons</h2>
     <ul class="addons">
-      <li><span>Spicy (18+) version</span><b>+$35 on stills, +$45 on animation (spicy animation from $80)</b></li>
+      <li><span>Spicy (18+) version</span><b>+$35 on stills, +$45 on animation (spicy animation from $80)</b><small>(ref sheets count as stills)</small></li>
       <li><span>Rush (half the usual wait)</span><b>+50%</b></li>
       <li><span>Commercial use</span><b>2× the price</b><small>(personal use and streaming are included)</small></li>
     </ul>
@@ -141,7 +137,7 @@
 
   <section class="card card-spicy" id="spicy-rules" aria-labelledby="spicy-rules-title">
     <h2 id="spicy-rules-title">🌶️ Spicy (18+) orders</h2>
-    <p class="sub">Spicy work runs on my own local setup, so a few simple rules keep it safe for everyone:</p>
+    <p class="sub">Spicy work runs on my own local setup, so a few simple rules keep it safe for everyone. Spicy pricing: +$35 on stills (ref sheets count as stills), +$45 on animation (from $80).</p>
     <ul class="terms">
       <li>Spicy add-ons are only for buyers who are 18+ and have their age or "18+" in their X bio.</li>
       <li>Accounts under 30 days old or with no post history can't order spicy.</li>
@@ -185,11 +181,8 @@
             <option value="img-scene">Full scene: character plus custom background</option>
             <option value="img-ych">Static YCH slot (your OC in my base)</option>
             <option value="img-edit">Outfit or pose edit of your existing ref (one change)</option>
-          </optgroup>
-          <optgroup label="🧬 AI-Ready Ref Pack">
-            <option value="ref-turn">Front and back turnaround (clean, white background)</option>
-            <option value="ref-full">Turnaround plus a markings and fur checklist plus a tested prompt pack</option>
-            <option value="ref-design">New character design + ref sheet (front/back turnaround, colors, markings checklist)</option>
+            <option value="img-design">New character design + ref sheet (designed from scratch: front/back turnaround, colors, markings)</option>
+            <option value="img-refsheet">Ref sheet of your existing character (front/back turnaround matched to your refs)</option>
           </optgroup>
           <optgroup label="🎬 Video &amp; Loops">
             <option value="vid-idle">Idle loop, 4–6 s seamless (breathing, blink, tail or ear motion)</option>
@@ -224,6 +217,7 @@
           <input id="q-qty" name="qty" type="number" inputmode="numeric" min="1" max="99" step="1" value="1">
           <p class="hint" id="qty-hint"></p>
         </div>
+        <label class="check" id="ai-wrap" hidden><input type="checkbox" id="q-ai" name="ai"> <span>Add the AI-ready pack (markings checklist + tested prompt pack) (+$15)</span></label>
         <label class="check" id="av-wrap" hidden><input type="checkbox" id="q-av" name="av"> <span>Add sound effects or music to the animation (+$10)</span></label>
       </fieldset>
 
@@ -352,7 +346,7 @@
         <button type="button" class="ghost" id="copy-btn">📋 Copy request</button>
       </div>
       <p class="copy-status" id="copy-status" role="status" aria-live="polite"></p>
-      <p class="hint fallback">X doesn't let sites type into your DMs, so this button copies your request for you. Just paste it into the chat. If the chat doesn't open, DM <a href="https://x.com/ToothBeskar" target="_blank" rel="noopener">@ToothBeskar</a>.</p>
+      <p class="hint fallback">X doesn't let sites type into your DMs, so this button copies your request for you. Just paste it into the chat. If the chat doesn't open, DM <a href="https://x.com/ToothBeskar" target="_blank" rel="noopener">@ToothBeskar</a>.<br>Please paste your request exactly as copied. Edited requests can't be quoted.</p>
 
       <details class="preview">
         <summary>Preview your message</summary>
@@ -377,6 +371,7 @@
   </nav>
   <p>AI-assisted work, finished by hand.</p>
 </footer>
+<script src="pricing.js" defer></script>
 <script src="quote.js" defer></script>
 <script>
 /* Live slots: edit slots.json ({"taken":N,"total":M,"open":true/false}) to update. */

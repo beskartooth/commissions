@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="referrer" content="no-referrer">
+<title>Quote check</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="style.css">
+<style>
+  .vwrap{max-width:760px;margin:0 auto;padding:1.5rem 1.1rem 3rem}
+  .vwrap h1{font-size:1.6rem;margin:.2rem 0 .3rem}
+  .vwrap textarea{min-height:16rem;font-size:15px;line-height:1.4}
+  .vbtns{display:flex;gap:.6rem;flex-wrap:wrap;margin:.8rem 0}
+  .result{border-radius:18px;padding:1rem 1.1rem;margin-top:1rem;border:1.5px solid var(--line);background:var(--card)}
+  .result h2{margin:0 0 .3rem;font-size:1.2rem}
+  .ok{border-color:#3ecf8e;background:rgba(62,207,142,.08)}
+  .bad{border-color:#ff6384;background:rgba(255,99,132,.08)}
+  .warn{border-color:var(--gold);background:rgba(232,189,84,.08)}
+  .result dl{display:grid;grid-template-columns:max-content 1fr;gap:.3rem .9rem;margin:.5rem 0 0}
+  .result dt{color:var(--soft)}
+  .result dd{margin:0;font-weight:700;word-break:break-word}
+  .result ul{margin:.4rem 0 0;padding-left:1.1rem;color:var(--soft)}
+  code{background:#16131d;border-radius:6px;padding:.05rem .35rem}
+</style>
+</head>
+<body>
+<main class="vwrap">
+  <p class="kicker">Private tool · not linked anywhere</p>
+  <h1>🔎 Quote check</h1>
+  <p class="sub">Paste a quote request DM exactly as received. This checks the quote code and re-calculates the price from the items. Nothing leaves this page.</p>
+  <label for="dm" class="sr-only">Pasted quote request</label>
+  <textarea id="dm" spellcheck="false" placeholder="Hi Besky! Quote request from besky commissions page:&#10;Item: …&#10;…&#10;Quote code: BQ-XXXX-XXXX"></textarea>
+  <div class="vbtns">
+    <button type="button" class="cta" id="check">Check request</button>
+    <button type="button" class="ghost" id="clear">Clear</button>
+  </div>
+  <section id="code-result" class="result" hidden aria-live="polite"></section>
+  <section id="price-result" class="result" hidden aria-live="polite"></section>
+  <p class="hint">The quote code catches casual edits only; it is not cryptographic security. Always trust the re-calculated price below, not the pasted one.</p>
+</main>
+<script src="pricing.js"></script>
+<script>
+(function () {
+  'use strict';
+  var Q = window.BeskyQuote, $ = function (id) { return document.getElementById(id); };
+  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; }); }
+  function row(k, v) { return '<dt>' + esc(k) + '</dt><dd>' + v + '</dd>'; }
+
+  function check() {
+    var text = $('dm').value, codeBox = $('code-result'), priceBox = $('price-result');
+    if (!text.trim()) { codeBox.hidden = priceBox.hidden = true; return; }
+    var req = Q.parseRequest(text), expected = Q.quoteCode(text);
+
+    // (a) quote code
+    codeBox.hidden = false;
+    if (!req.code) {
+      codeBox.className = 'result bad'; codeBox.dataset.state = 'missing';
+      codeBox.innerHTML = '<h2>❌ No quote code found</h2><p>The request has no "Quote code:" line, so it may have been typed or edited by hand.</p>';
+    } else if (req.code === expected) {
+      codeBox.className = 'result ok'; codeBox.dataset.state = 'match';
+      codeBox.innerHTML = '<h2>✅ Matches: not edited</h2><dl>' + row('Quote code', '<code>' + esc(req.code) + '</code>') + '</dl>';
+    } else {
+      codeBox.className = 'result bad'; codeBox.dataset.state = 'edited';
+      codeBox.innerHTML = '<h2>❌ Edited after it was generated</h2><dl>' + row('Code in DM', '<code>' + esc(req.code) + '</code>') + row('Code for this text', '<code>' + esc(expected) + '</code>') + '</dl>';
+    }
+
+    // (b) independent price re-calculation
+    priceBox.hidden = false;
+    var p = Q.PRODUCTS[req.product];
+    if (!p) {
+      priceBox.className = 'result bad'; priceBox.dataset.state = 'unknown-item';
+      priceBox.innerHTML = '<h2>❌ Unknown item</h2><p>The "Item" line doesn\'t match anything on the price list:</p><p><code>' + esc(req.item || '(missing)') + '</code></p>';
+      return;
+    }
+    var est = Q.estimate(req), correct = Q.estimateLine(est), pasted = req.pageEstimate;
+    var same = Q.normalizeLine(pasted) === Q.normalizeLine(correct);
+    priceBox.dataset.state = same ? 'price-ok' : 'price-mismatch';
+    priceBox.dataset.correct = correct;
+    priceBox.className = 'result ' + (same ? 'ok' : 'bad');
+    var details = [];
+    if (p.qty) details.push(Q.QTY[p.qty][0] + ': ' + req.qty);
+    if (req.av) details.push('sound or music');
+    if (req.aiPack) details.push('AI-ready pack');
+    details.push('spicy: ' + (req.spicy ? 'yes' : 'no'));
+    details.push('commercial: ' + (req.commercial ? 'yes (2×)' : 'no'));
+    details.push('rush: ' + (req.rush ? 'yes (+50%)' : 'no'));
+    priceBox.innerHTML = '<h2>' + (same ? '✅ Price matches the price list' : '❌ Price doesn\'t match the price list') + '</h2><dl>' +
+      row('Item', esc(p.label) + ' <span class="hint">(' + esc(p.cat) + ')</span>') +
+      row('Options', esc(details.join(' · '))) +
+      row('Correct estimate', '<span id="correct">' + esc(est.quoted ? 'Quoted by DM' : '$' + est.total) + '</span>') +
+      row('Page estimate in DM', esc(pasted || '(missing)')) + '</dl>' +
+      (est.parts && est.parts.length ? '<ul><li>' + est.parts.map(esc).join('</li><li>') + '</li></ul>' : '');
+  }
+  $('check').addEventListener('click', check);
+  $('dm').addEventListener('input', check);
+  $('clear').addEventListener('click', function () { $('dm').value = ''; check(); $('dm').focus(); });
+})();
+</script>
+</body>
+</html>

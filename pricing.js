@@ -3,7 +3,8 @@
  * Loaded by index.html (the quote form) and verify.html (Besky's checker),
  * so the form and the checker always use the same prices and the same hash.
  *
- * About the "Quote code": it is a short FNV-1a hash of the request lines.
+ * About the "Quote code": it is a short FNV-1a hash of the form's own "Label: value" lines
+ * between the greeting and the code (X timestamps and other extra lines are ignored).
  * It only makes casual edits easy to spot (someone changing a price or item
  * in the pasted DM). It is NOT cryptographic security: the algorithm and salt
  * are public, so a determined person could recompute a matching code. The
@@ -131,24 +132,46 @@
     return String(text).replace(/\r\n?/g, '\n').split('\n');
   }
 
-  // Field lines = "Label: value" lines after the greeting, excluding the quote code itself.
-  function fieldLines(text) {
-    var out = [];
-    splitLines(text).forEach(function (raw) {
-      var l = normalizeLine(raw);
-      if (!l || l === normalizeLine(HEAD)) return;
+  // Every label the quote form can write. Only these lines are hashed; anything else
+  // (X timestamps like "5:28", "Seen", notes typed around the request) is left out of
+  // the code and listed separately by verify.html so nothing is silently hidden.
+  var FORM_LABELS = [LABELS.item, LABELS.av, LABELS.aiPack, 'Character', 'Permission', 'Name and species or type',
+    'Key details', 'References', 'Images', 'Idea', LABELS.use, LABELS.spicy, 'X bio', 'X account', 'X handle',
+    'Deadline', LABELS.rush, 'Format or size', 'Budget', 'Payment', 'Anything else', LABELS.estimate, 'Confirmed'];
+  Object.keys(QTY).forEach(function (k) { FORM_LABELS.push(QTY[k][0]); });
+  var LABEL_SET = {};
+  FORM_LABELS.forEach(function (l) { LABEL_SET[normalizeLine(l).toLowerCase()] = normalizeLine(l); });
+
+  /*
+   * Splits a pasted DM into:
+   *   fields:  form lines ("Label: value" with a known label) between the greeting and the
+   *            first Quote code line, normalised, in pasted order. These are what the code covers.
+   *   ignored: every other non-empty line (timestamps, "Seen", text before the greeting,
+   *            anything after the code, unknown labels) and where it was found.
+   *   legacy:  the original v1 view (every line except greeting and code lines).
+   */
+  function analyse(text) {
+    var lines = splitLines(text).map(normalizeLine), head = normalizeLine(HEAD);
+    var headAt = lines.indexOf(head), codeAt = -1;
+    lines.forEach(function (l, i) { if (codeAt < 0 && /^quote\s*code\s*:/i.test(l)) codeAt = i; });
+    var fields = [], ignored = [], legacy = [];
+    lines.forEach(function (l, i) {
+      if (!l || l === head) return;
       var m = /^([^:]{1,60}):\s?(.*)$/.exec(l);
-      if (!m) { out.push({ label: '', value: l, line: l }); return; }
-      var label = m[1].trim(), value = m[2].trim();
-      if (label === LABELS.code) return;
-      out.push({ label: label, value: value, line: label + ': ' + value });
+      var label = m ? m[1].trim() : '', value = m ? m[2].trim() : l;
+      if (m && label === LABELS.code) return;
+      legacy.push(m ? label + ': ' + value : l);
+      if (/^quote\s*code\s*:/i.test(l)) return;
+      var where = (headAt >= 0 && i < headAt) ? 'before' : (codeAt >= 0 && i > codeAt) ? 'after' : 'inside';
+      var known = m && LABEL_SET[label.toLowerCase()];
+      if (where === 'inside' && known) fields.push({ label: known, value: value, line: known + ': ' + value });
+      else ignored.push({ line: l, where: where });
     });
-    return out;
+    return { fields: fields, ignored: ignored, legacy: legacy.join('\n') };
   }
 
-  function canonical(text) {
-    return fieldLines(text).map(function (f) { return f.line; }).join('\n');
-  }
+  function fieldLines(text) { return analyse(text).fields; }
+  function canonical(text) { return fieldLines(text).map(function (f) { return f.line; }).join('\n'); }
 
   // FNV-1a 64-bit over UTF-8 bytes (BigInt). Not cryptographic; see the note at the top.
   var SALT = 'besky-quote-v1';
@@ -159,18 +182,30 @@
     return h;
   }
   var B32 = '0123456789ABCDEFGHJKMNPQRSTVWXYZ'; // Crockford base32 (no I, L, O, U)
-  function quoteCode(text) {
-    var h = fnv1a64(canonical(text)), s = '';
+  function codeOf(str) {
+    var h = fnv1a64(str), s = '';
     for (var i = 0; i < 8; i++) { s += B32[Number(h & 31n)]; h >>= 5n; }
     return 'BQ-' + s.slice(0, 4) + '-' + s.slice(4);
   }
+  // Same salt and hash as v1: for a clean DM the canonical text is unchanged, so every code
+  // made before this fix still verifies; extra lines like X timestamps no longer count.
+  function quoteCode(text) { return codeOf(canonical(text)); }
   function readCode(text) {
     var found = '';
     splitLines(text).forEach(function (raw) {
-      var m = /^\s*quote\s*code\s*:\s*(BQ-?[0-9A-Z]{4}-?[0-9A-Z]{4})\s*$/i.exec(normalizeLine(raw));
-      if (m) found = m[1].toUpperCase().replace(/^BQ-?(.{4})-?(.{4})$/, 'BQ-$1-$2');
+      if (found) return;
+      var m = /^quote\s*code\s*:\s*(BQ\s*-?\s*[0-9A-Z]{4}\s*-?\s*[0-9A-Z]{4})(?![0-9A-Z])/i.exec(normalizeLine(raw));
+      if (m) found = m[1].toUpperCase().replace(/[\s-]/g, '').replace(/^BQ(.{4})(.{4})$/, 'BQ-$1-$2');
     });
     return found;
+  }
+  // { ok, how: 'current' | 'legacy' | '', code, expected } for verify.html.
+  function checkCode(text) {
+    var code = readCode(text), expected = quoteCode(text);
+    if (!code) return { ok: false, how: '', code: '', expected: expected };
+    if (code === expected) return { ok: true, how: 'current', code: code, expected: expected };
+    if (code === codeOf(analyse(text).legacy)) return { ok: true, how: 'legacy', code: code, expected: expected };
+    return { ok: false, how: '', code: code, expected: expected };
   }
   function withCode(text) {
     return text + '\n' + LABELS.code + ': ' + quoteCode(text);
@@ -178,7 +213,7 @@
 
   // ---- parsing a pasted DM back into estimate inputs (for verify.html) ----
   function parseRequest(text) {
-    var fields = fieldLines(text), get = function (label) {
+    var an = analyse(text), fields = an.fields, get = function (label) {
       var f = fields.filter(function (x) { return x.label === label; })[0]; return f ? f.value : '';
     };
     var itemVal = get(LABELS.item), product = '';
@@ -192,14 +227,15 @@
       item: itemVal, product: product, qty: qty,
       av: !!get(LABELS.av), aiPack: !!get(LABELS.aiPack),
       spicy: /^yes/i.test(spicyVal), commercial: commercial, rush: /^yes/i.test(get(LABELS.rush)),
-      pageEstimate: get(LABELS.estimate), code: readCode(text), fields: fields
+      pageEstimate: get(LABELS.estimate), code: readCode(text), fields: fields, ignored: an.ignored
     };
   }
 
   root.BeskyQuote = {
     PRODUCTS: PRODUCTS, QTY: QTY, PRICES: PRICES, LABELS: LABELS, HEAD: HEAD, COMMERCIAL_USES: COMMERCIAL_USES,
     itemText: itemText, clampQty: clampQty, estimate: estimate, estimateLine: estimateLine,
-    normalizeLine: normalizeLine, canonical: canonical, quoteCode: quoteCode, readCode: readCode,
+    normalizeLine: normalizeLine, canonical: canonical, analyse: analyse, FORM_LABELS: FORM_LABELS,
+    quoteCode: quoteCode, readCode: readCode, checkCode: checkCode,
     withCode: withCode, parseRequest: parseRequest
   };
 })(typeof window !== 'undefined' ? window : globalThis);

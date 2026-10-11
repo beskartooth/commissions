@@ -40,7 +40,7 @@
   <section id="price-result" class="result" hidden aria-live="polite"></section>
   <p class="hint">The quote code catches casual edits only; it is not cryptographic security. Always trust the re-calculated price below, not the pasted one.</p>
 </main>
-<script src="pricing.js"></script>
+<script src="pricing.js?v=3"></script>
 <script>
 (function () {
   'use strict';
@@ -51,19 +51,24 @@
   function check() {
     var text = $('dm').value, codeBox = $('code-result'), priceBox = $('price-result');
     if (!text.trim()) { codeBox.hidden = priceBox.hidden = true; return; }
-    var req = Q.parseRequest(text), expected = Q.quoteCode(text);
+    var req = Q.parseRequest(text), cc = Q.checkCode(text);
 
-    // (a) quote code
+    // (a) quote code. Lines the form never writes are left out of the code but always shown.
     codeBox.hidden = false;
-    if (!req.code) {
+    var inside = req.ignored.filter(function (x) { return x.where === 'inside'; }),
+        outside = req.ignored.filter(function (x) { return x.where !== 'inside'; });
+    var extra = '';
+    if (inside.length) extra += '<p><b>⚠️ Extra lines inside the request</b> that the form never writes. They are not covered by the code, so read them yourself:</p><ul><li>' + inside.map(function (x) { return '<code>' + esc(x.line) + '</code>'; }).join('</li><li>') + '</li></ul>';
+    if (outside.length) extra += '<p class="hint">Ignored outside the request (X timestamps etc.): ' + outside.map(function (x) { return '<code>' + esc(x.line) + '</code>'; }).join(' ') + '</p>';
+    if (!cc.code) {
       codeBox.className = 'result bad'; codeBox.dataset.state = 'missing';
-      codeBox.innerHTML = '<h2>❌ No quote code found</h2><p>The request has no "Quote code:" line, so it may have been typed or edited by hand.</p>';
-    } else if (req.code === expected) {
-      codeBox.className = 'result ok'; codeBox.dataset.state = 'match';
-      codeBox.innerHTML = '<h2>✅ Matches: not edited</h2><dl>' + row('Quote code', '<code>' + esc(req.code) + '</code>') + '</dl>';
+      codeBox.innerHTML = '<h2>❌ No quote code found</h2><p>The request has no "Quote code:" line, so it may have been typed or edited by hand.</p>' + extra;
+    } else if (cc.ok) {
+      codeBox.className = 'result ' + (inside.length ? 'warn' : 'ok'); codeBox.dataset.state = inside.length ? 'match-extra' : 'match'; codeBox.dataset.how = cc.how;
+      codeBox.innerHTML = (inside.length ? '<h2>⚠️ Form lines match, but extra lines were added</h2><dl>' : '<h2>✅ Matches: not edited</h2><dl>') + row('Quote code', '<code>' + esc(cc.code) + '</code>') + '</dl>' + extra;
     } else {
       codeBox.className = 'result bad'; codeBox.dataset.state = 'edited';
-      codeBox.innerHTML = '<h2>❌ Edited after it was generated</h2><dl>' + row('Code in DM', '<code>' + esc(req.code) + '</code>') + row('Code for this text', '<code>' + esc(expected) + '</code>') + '</dl>';
+      codeBox.innerHTML = '<h2>❌ Edited after it was generated</h2><dl>' + row('Code in DM', '<code>' + esc(cc.code) + '</code>') + row('Code for this text', '<code>' + esc(cc.expected) + '</code>') + '</dl>' + extra;
     }
 
     // (b) independent price re-calculation

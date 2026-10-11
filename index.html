@@ -75,6 +75,7 @@
     <table>
       <tr><td>Front and back turnaround (clean, white background)</td><td>$25</td></tr>
       <tr><td>Turnaround plus a markings and fur checklist plus a tested prompt pack</td><td>$40</td></tr>
+      <tr><td>New character design + ref sheet (front/back turnaround, colors, markings checklist)</td><td>$50</td></tr>
     </table>
   </section>
 
@@ -86,11 +87,12 @@
     </figure>
     <table>
       <tr><td>Idle loop, 4–6 s seamless (breathing, blink, tail or ear motion)</td><td>$35</td></tr>
-      <tr><td>Animated YCH slot</td><td>$30</td></tr>
+      <tr><td>Animated YCH slot</td><td>$40</td></tr>
       <tr><td>Custom short clip, 5–10 s, single shot</td><td>$50</td></tr>
       <tr><td>Animated emotes</td><td>$8 each, or 5 for $35</td></tr>
       <tr><td>Sound effects or music on any animation</td><td>+$10</td></tr>
     </table>
+    <p class="sub note">Animation starts at $40, except idle loops and emotes.</p>
   </section>
 
   <section class="card">
@@ -131,9 +133,22 @@
   <section class="card card-gold">
     <h2>➕ Add-ons</h2>
     <ul class="addons">
-      <li><span>Spicy (18+) version</span><b>+$20 on stills, +$25 on animation</b></li>
+      <li><span>Spicy (18+) version</span><b>+$35 on stills, +$45 on animation (spicy animation from $80)</b></li>
       <li><span>Rush (half the usual wait)</span><b>+50%</b></li>
       <li><span>Commercial use</span><b>2× the price</b><small>(personal use and streaming are included)</small></li>
+    </ul>
+  </section>
+
+  <section class="card card-spicy" id="spicy-rules" aria-labelledby="spicy-rules-title">
+    <h2 id="spicy-rules-title">🌶️ Spicy (18+) orders</h2>
+    <p class="sub">Spicy work runs on my own local setup, so a few simple rules keep it safe for everyone:</p>
+    <ul class="terms">
+      <li>Spicy add-ons are only for buyers who are 18+ and have their age or "18+" in their X bio.</li>
+      <li>Accounts under 30 days old or with no post history can't order spicy.</li>
+      <li>I check your profile before quoting.</li>
+      <li>Spicy orders are paid upfront through PayPal or X Money only.</li>
+      <li>I never ask for or store ID photos.</li>
+      <li>I can refuse or cancel any spicy order if I'm unsure, with a full refund.</li>
     </ul>
   </section>
 
@@ -146,7 +161,7 @@
       <li><b>Revisions:</b> 2 small revisions are included; bigger changes are quoted separately.</li>
       <li><b>Turnaround:</b> about 3–7 days for stills and audio, and 1–2 weeks for animation and apps.</li>
       <li><b>Refunds:</b> full refund if I haven't started yet; partial refund once WIPs have been shown; no refund after final delivery.</li>
-      <li><b>18+:</b> spicy work is for adults only, and characters must be adults.</li>
+      <li><b>18+:</b> spicy work is only for adult buyers who meet the Spicy (18+) order rules (age or "18+" in your X bio, an account at least 30 days old with post history), and all characters must be adults.</li>
       <li><b>Will not draw:</b> real people, minors or childlike characters, hate content, or anything illegal.</li>
     </ul>
   </section>
@@ -174,6 +189,7 @@
           <optgroup label="🧬 AI-Ready Ref Pack">
             <option value="ref-turn">Front and back turnaround (clean, white background)</option>
             <option value="ref-full">Turnaround plus a markings and fur checklist plus a tested prompt pack</option>
+            <option value="ref-design">New character design + ref sheet (front/back turnaround, colors, markings checklist)</option>
           </optgroup>
           <optgroup label="🎬 Video &amp; Loops">
             <option value="vid-idle">Idle loop, 4–6 s seamless (breathing, blink, tail or ear motion)</option>
@@ -267,7 +283,16 @@
           <label class="pill"><input type="radio" name="spicy" value="no" checked> No</label>
           <label class="pill"><input type="radio" name="spicy" value="yes"> Yes (+ add-on, 18+ only)</label>
         </div>
-        <label class="check" id="adult-wrap" hidden><input type="checkbox" id="q-adult" name="adult"> <span>I am 18+ and all characters are adults. <span class="req">(required)</span></span></label>
+        <div class="spicy-checks" id="spicy-checks" hidden>
+          <p class="hint">Quick checks for spicy orders. I look at your profile before quoting, and I never ask for ID. <a href="#spicy-rules">See the rules</a>.</p>
+          <label class="check" id="adult-wrap" hidden><input type="checkbox" id="q-adult" name="adult"> <span>I am 18+ and all characters are adults. <span class="req">(required)</span></span></label>
+          <label class="check" id="bio-wrap" hidden><input type="checkbox" id="q-bio" name="bio"> <span>My X bio shows my age or 18+ <span class="req">(required)</span></span></label>
+          <label class="check" id="acct-wrap" hidden><input type="checkbox" id="q-acct" name="acct"> <span>My X account is at least 30 days old <span class="req">(required)</span></span></label>
+          <div class="field" id="handle-wrap" hidden>
+            <label for="q-handle">Your X handle <span class="req">(required for spicy)</span></label>
+            <input id="q-handle" name="handle" type="text" inputmode="text" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="16" placeholder="@yourhandle" pattern="@?[A-Za-z0-9_]{1,15}" title="Your X handle, like @yourhandle (letters, numbers or _ only)">
+          </div>
+        </div>
       </fieldset>
 
       <fieldset class="q">

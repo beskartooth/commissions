@@ -127,3 +127,13 @@ input[type=radio],input[type=checkbox]{accent-color:var(--purple);width:1.1rem;h
 .slots-dot{width:.6rem;height:.6rem;border-radius:50%;background:#4ade80;box-shadow:0 0 8px #4ade80}
 .slots.full{background:rgba(255,143,184,.12);border-color:var(--pink)}
 .slots.full .slots-dot{background:var(--pink);box-shadow:0 0 8px var(--pink)}
+
+/* spicy rules + checks */
+.card-spicy{border-color:rgba(255,143,184,.4)}
+.card-spicy .terms li::before{background:var(--pink)}
+.card-video .note{margin:.6rem 0 0}
+.spicy-checks{margin-top:.6rem;padding:.7rem .85rem;border:1px dashed rgba(255,143,184,.45);border-radius:14px;background:rgba(255,143,184,.05)}
+.spicy-checks[hidden]{display:none}
+.spicy-checks .hint{margin:0 0 .2rem}
+.spicy-checks .hint a{color:var(--purple2)}
+.field[hidden]{display:none}

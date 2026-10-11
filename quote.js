@@ -14,8 +14,9 @@
     'img-edit':   { cat: 'Images', price: 6, kind: 'still', qty: 'edits' },
     'ref-turn':   { cat: 'AI-Ready Ref Pack', price: 25, kind: 'still' },
     'ref-full':   { cat: 'AI-Ready Ref Pack', price: 40, kind: 'still' },
+    'ref-design': { cat: 'AI-Ready Ref Pack', price: 50, kind: 'still' },
     'vid-idle':   { cat: 'Video & Loops', price: 35, kind: 'anim' },
-    'vid-ych':    { cat: 'Video & Loops', price: 30, kind: 'anim' },
+    'vid-ych':    { cat: 'Video & Loops', price: 40, kind: 'anim' },
     'vid-clip':   { cat: 'Video & Loops', price: 50, kind: 'anim' },
     'vid-emote':  { cat: 'Video & Loops', price: 8, kind: 'anim', qty: 'emotes' },
     'app-reskin': { cat: 'Simple Web Apps', price: 40, kind: 'other' },
@@ -58,21 +59,25 @@
   function estimate() {
     const p = P[el.product.value];
     if (!p) return null;
-    if (p.price == null) return { text: 'Estimate by DM', detail: 'Tell me what you need and I will quote it.', total: null };
+    if (p.price == null) return { text: 'Quoted by DM', detail: 'Tell me what you need and I will quote it.', total: null, quoted: true };
     const n = qtyNum();
     let base = p.price; const parts = [];
     if (p.qty === 'chars') { base = p.price + (n - 1) * 8; if (n > 1) parts.push(`${n - 1} extra character${n > 2 ? 's' : ''} +$${(n - 1) * 8}`); }
     else if (p.qty === 'emotes') { base = Math.floor(n / 5) * 35 + Math.min((n % 5) * 8, 35); parts.push(`${n} emote${n > 1 ? 's' : ''}`); }
     else if (p.qty) { base = p.price * n; if (n > 1) parts.push(`${n} × $${p.price}`); }
-    let total = base;
+    // Never estimate below the selected item's own listed price.
+    let total = Math.max(base, p.price);
     if (el.av.checked && p.kind === 'anim') { total += 10; parts.push('sound or music +$10'); }
     const spicy = radio('spicy') === 'yes';
-    if (spicy && p.kind === 'still') { total += 20; parts.push('spicy +$20'); }
-    else if (spicy && p.kind === 'anim') { total += 25; parts.push('spicy +$25'); }
+    if (spicy && p.kind === 'still') { total += 35; parts.push('spicy +$35'); }
+    else if (spicy && p.kind === 'anim') {
+      total += 45; parts.push('spicy +$45');
+      if (total < 80) { total = 80; parts.push('spicy animation minimum $80'); }
+    }
     else if (spicy) parts.push('spicy add-on quoted by DM');
     if (isCommercial()) { total *= 2; parts.push('commercial use 2×'); }
     if (el.rush.checked) { total *= 1.5; parts.push('rush +50%'); }
-    total = Math.ceil(total);
+    total = Math.ceil(Math.max(total, p.price));
     return { text: `Estimated from $${total}, final quote by DM`, detail: parts.length ? `Includes: ${parts.join(', ')}.` : 'Base price from the sheet.', total };
   }
 
@@ -92,7 +97,13 @@
     add('Idea', val('idea'), true);
     const uses = [...form.querySelectorAll('input[name="use"]:checked')].map((c) => c.value);
     if (uses.length) add("What it's for", uses.join(', ') + (isCommercial() ? ' (commercial use, 2×)' : ''));
-    if (radio('spicy') === 'yes') add('Spicy (18+)', 'Yes. I am 18+ and all characters are adults.');
+    if (radio('spicy') === 'yes') {
+      add('Spicy (18+)', 'Yes. I am 18+ and all characters are adults.');
+      if ($('q-bio').checked) add('X bio', 'Shows my age or 18+');
+      if ($('q-acct').checked) add('X account', 'At least 30 days old');
+      const h = val('handle').replace(/^@*/, '');
+      if (h) add('X handle', '@' + h);
+    }
     else add('Spicy (18+)', 'No');
     if (el.norush.checked) add('Deadline', 'No rush');
     else if (el.date.value) add('Deadline', el.date.value);
@@ -103,6 +114,7 @@
     add('Anything else', val('notes'), true);
     const est = estimate();
     if (est && est.total != null) add('Page estimate', `from $${est.total}`);
+    else if (est && est.quoted) add('Page estimate', 'Quoted by DM');
     if ($('q-ack').checked) add('Confirmed', 'AI-assisted, 100% upfront before work starts');
     return lines;
   }
@@ -138,7 +150,13 @@
     const ch = radio('character');
     setReq(el.permWrap, el.perm, ch.startsWith('Yes, someone else'));
     el.charFields.hidden = ch === 'Not a character piece';
-    setReq(el.adultWrap, el.adult, radio('spicy') === 'yes');
+    const sp = radio('spicy') === 'yes';
+    $('spicy-checks').hidden = !sp;
+    setReq(el.adultWrap, el.adult, sp);
+    setReq($('bio-wrap'), $('q-bio'), sp);
+    setReq($('acct-wrap'), $('q-acct'), sp);
+    const hw = $('handle-wrap'), hi = $('q-handle');
+    hw.hidden = !sp; hi.required = sp; hi.disabled = !sp;
     el.date.disabled = el.norush.checked;
     el.commercialNote.hidden = !isCommercial();
     const est = estimate();
@@ -161,6 +179,7 @@
   function describe(invalid) {
     return [...new Set(invalid.map((f) => {
       const fs = f.closest('fieldset'); const lg = fs && fs.querySelector('legend');
+      if (f.id === 'q-handle') return f.value ? 'Your X handle (like @yourhandle)' : 'Your X handle';
       return f.type === 'checkbox' ? f.closest('label').textContent.replace('(required)', '').trim() : (lg ? lg.textContent.replace(/^\d+\s*/, '').replace(/\(required\)/, '').trim() : f.name);
     }))].join(' · ');
   }

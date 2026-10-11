@@ -67,8 +67,8 @@
     let total = base;
     if (el.av.checked && p.kind === 'anim') { total += 10; parts.push('sound or music +$10'); }
     const spicy = radio('spicy') === 'yes';
-    if (spicy && p.kind === 'still') { total += 5; parts.push('spicy +$5'); }
-    else if (spicy && p.kind === 'anim') { total += 10; parts.push('spicy +$10'); }
+    if (spicy && p.kind === 'still') { total += 20; parts.push('spicy +$20'); }
+    else if (spicy && p.kind === 'anim') { total += 25; parts.push('spicy +$25'); }
     else if (spicy) parts.push('spicy add-on quoted by DM');
     if (isCommercial()) { total *= 2; parts.push('commercial use 2×'); }
     if (el.rush.checked) { total *= 1.5; parts.push('rush +50%'); }

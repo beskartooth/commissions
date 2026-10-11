@@ -36,7 +36,10 @@
     <h1>Besky 🔞 Art</h1>
     <p class="tagline">AI-assisted art, animation, music &amp; tools</p>
     <p class="lead">Everything here is AI-assisted and guided, edited and finished by me. Prices are in USD.</p>
-    <a class="cta" href="https://x.com/ToothBeskar" target="_blank" rel="noopener">Order: DM @ToothBeskar</a>
+    <div class="hero-actions">
+      <a class="cta" href="https://x.com/ToothBeskar" target="_blank" rel="noopener">Order: DM @ToothBeskar</a>
+      <a class="ghost" href="#quote">📝 Request a quote</a>
+    </div>
     <p class="pay-note">💳 Payments: X Money (US, Premium) or PayPal invoice.</p>
   </div>
   <figure class="hero-art">
@@ -149,6 +152,191 @@
   </section>
 </main>
 
+<p class="to-quote"><a href="#quote">📝 Know what you want? Request a quote →</a></p>
+
+<section class="quote" id="quote" aria-labelledby="quote-title">
+  <div class="card quote-card">
+    <h2 id="quote-title">📝 Request a quote</h2>
+    <p class="sub">Fill this in and it builds a ready-to-send X DM to @ToothBeskar. Nothing is sent or stored by this page.</p>
+    <form id="quote-form" novalidate>
+
+      <fieldset class="q">
+        <legend><span class="qn">1</span> What do you want?</legend>
+        <label for="q-product">Product <span class="req">(required)</span></label>
+        <select id="q-product" name="product" required>
+          <option value="">Choose one…</option>
+          <optgroup label="🎨 Images">
+            <option value="img-still">Character still: one character, plain background</option>
+            <option value="img-scene">Full scene: character plus custom background</option>
+            <option value="img-ych">Static YCH slot (your OC in my base)</option>
+            <option value="img-edit">Outfit or pose edit of your existing ref (one change)</option>
+          </optgroup>
+          <optgroup label="🧬 AI-Ready Ref Pack">
+            <option value="ref-turn">Front and back turnaround (clean, white background)</option>
+            <option value="ref-full">Turnaround plus a markings and fur checklist plus a tested prompt pack</option>
+          </optgroup>
+          <optgroup label="🎬 Video &amp; Loops">
+            <option value="vid-idle">Idle loop, 4–6 s seamless (breathing, blink, tail or ear motion)</option>
+            <option value="vid-ych">Animated YCH slot</option>
+            <option value="vid-clip">Custom short clip, 5–10 s, single shot</option>
+            <option value="vid-emote">Animated emotes</option>
+          </optgroup>
+          <optgroup label="💻 Simple Web Apps">
+            <option value="app-reskin">Reskin of an existing tool (your art, colors, sounds)</option>
+            <option value="app-custom">Custom one-page app (timer, counter, tracker, mini game)</option>
+            <option value="app-update">Small updates later</option>
+          </optgroup>
+          <optgroup label="🎵 Music">
+            <option value="mus-loop">Seamless loop track, 60–120 s (menu, stream, game)</option>
+            <option value="mus-pack">3-track pack (for example menu, gameplay, boss)</option>
+          </optgroup>
+          <optgroup label="🔊 Sound Effects">
+            <option value="sfx-one">Custom sound effect</option>
+            <option value="sfx-pack">Pack of 10 (UI, pops, sparkles, game feedback)</option>
+          </optgroup>
+          <optgroup label="🧩 Assets">
+            <option value="ast-sprite">Game sprite set, about 6 items, transparent PNG</option>
+            <option value="ast-stream">Stream pack (panels, overlay, starting soon, BRB)</option>
+            <option value="ast-pfp">Profile picture plus banner set</option>
+          </optgroup>
+          <optgroup label="❓ Other or not sure">
+            <option value="other">Other or not sure</option>
+          </optgroup>
+        </select>
+        <div class="field" id="qty-wrap" hidden>
+          <label for="q-qty" id="qty-label">How many?</label>
+          <input id="q-qty" name="qty" type="number" inputmode="numeric" min="1" max="99" step="1" value="1">
+          <p class="hint" id="qty-hint"></p>
+        </div>
+        <label class="check" id="av-wrap" hidden><input type="checkbox" id="q-av" name="av"> <span>Add sound effects or music to the animation (+$10)</span></label>
+      </fieldset>
+
+      <fieldset class="q">
+        <legend><span class="qn">2</span> Do you have a character? <span class="req">(required)</span></legend>
+        <div class="choices">
+          <label class="pill"><input type="radio" name="character" value="Yes, my own OC" required> Yes, my own OC</label>
+          <label class="pill"><input type="radio" name="character" value="Yes, someone else's character (with permission)"> Yes, someone else's character (with permission)</label>
+          <label class="pill"><input type="radio" name="character" value="No, make one up"> No, make one up</label>
+          <label class="pill"><input type="radio" name="character" value="Not a character piece"> Not a character piece</label>
+        </div>
+        <label class="check" id="perm-wrap" hidden><input type="checkbox" id="q-perm" name="perm"> <span>I have the owner's permission <span class="req">(required)</span></span></label>
+      </fieldset>
+
+      <fieldset class="q" id="char-fields">
+        <legend><span class="qn">3</span> About the character <span class="opt">(optional)</span></legend>
+        <label for="q-name">Character name and species or type</label>
+        <input id="q-name" name="name" type="text" maxlength="120" autocomplete="off">
+        <label for="q-details">Key details: colors, markings, must-keep features</label>
+        <textarea id="q-details" name="details" rows="3" maxlength="1500"></textarea>
+      </fieldset>
+
+      <fieldset class="q">
+        <legend><span class="qn">4</span> References</legend>
+        <label for="q-refs">Links (Toyhouse, X post, Drive, etc.)</label>
+        <textarea id="q-refs" name="refs" rows="3" maxlength="1500" placeholder="One link per line"></textarea>
+        <label class="check"><input type="checkbox" id="q-attach" name="attach"> <span>I'll attach images in the DM</span></label>
+        <p class="hint">Images can't be uploaded through this page. Add links here or attach images in the DM.</p>
+      </fieldset>
+
+      <fieldset class="q">
+        <legend><span class="qn">5</span> Describe your idea <span class="req">(required)</span></legend>
+        <label for="q-idea" class="sr-only">Describe your idea</label>
+        <textarea id="q-idea" name="idea" rows="5" maxlength="3000" required aria-describedby="idea-hint"></textarea>
+        <p class="hint" id="idea-hint">Art: pose, outfit, expression, mood, background or scene. Audio: vibe, tempo, instruments, length. Apps: what it should do.</p>
+      </fieldset>
+
+      <fieldset class="q">
+        <legend><span class="qn">6</span> What's it for? <span class="opt">(pick any)</span></legend>
+        <div class="choices">
+          <label class="pill"><input type="checkbox" name="use" value="Just for fun or personal"> Just for fun or personal</label>
+          <label class="pill"><input type="checkbox" name="use" value="Social post"> Social post</label>
+          <label class="pill"><input type="checkbox" name="use" value="Profile picture or banner"> Profile picture or banner</label>
+          <label class="pill"><input type="checkbox" name="use" value="Stream (Twitch etc.)"> Stream (Twitch etc.)</label>
+          <label class="pill"><input type="checkbox" name="use" value="Video or YouTube"> Video or YouTube</label>
+          <label class="pill"><input type="checkbox" name="use" value="Game" data-commercial> Game</label>
+          <label class="pill"><input type="checkbox" name="use" value="Advertisement or promo" data-commercial> Advertisement or promo</label>
+          <label class="pill"><input type="checkbox" name="use" value="Merch or products" data-commercial> Merch or products</label>
+          <label class="pill"><input type="checkbox" name="use" value="Other"> Other</label>
+        </div>
+        <p class="notice" id="commercial-note" role="status" hidden>💼 Commercial use is 2× the price.</p>
+      </fieldset>
+
+      <fieldset class="q">
+        <legend><span class="qn">7</span> Spicy (18+) version?</legend>
+        <div class="choices">
+          <label class="pill"><input type="radio" name="spicy" value="no" checked> No</label>
+          <label class="pill"><input type="radio" name="spicy" value="yes"> Yes (+ add-on, 18+ only)</label>
+        </div>
+        <label class="check" id="adult-wrap" hidden><input type="checkbox" id="q-adult" name="adult"> <span>I am 18+ and all characters are adults. <span class="req">(required)</span></span></label>
+      </fieldset>
+
+      <fieldset class="q">
+        <legend><span class="qn">8</span> Deadline</legend>
+        <div class="row">
+          <div class="field grow">
+            <label for="q-date">Date</label>
+            <input id="q-date" name="date" type="date">
+          </div>
+          <label class="check"><input type="checkbox" id="q-norush" name="norush"> <span>No rush</span></label>
+        </div>
+        <label class="check"><input type="checkbox" id="q-rush" name="rush"> <span>Rush: half the usual wait (+50%)</span></label>
+      </fieldset>
+
+      <fieldset class="q">
+        <legend><span class="qn">9</span> Format or size needs <span class="opt">(optional)</span></legend>
+        <label for="q-format" class="sr-only">Format or size needs</label>
+        <input id="q-format" name="format" type="text" maxlength="300" placeholder="Aspect ratio, resolution, file type, transparent background, loop length">
+      </fieldset>
+
+      <fieldset class="q">
+        <legend><span class="qn">10</span> Budget <span class="opt">(optional)</span></legend>
+        <label for="q-budget" class="sr-only">Budget</label>
+        <input id="q-budget" name="budget" type="text" maxlength="60" placeholder="e.g. $30">
+      </fieldset>
+
+      <fieldset class="q">
+        <legend><span class="qn">11</span> How should I pay you? <span class="req">(required)</span></legend>
+        <div class="choices">
+          <label class="pill"><input type="radio" name="pay" value="X Money (US, Premium)" required> X Money (US, Premium)</label>
+          <label class="pill"><input type="radio" name="pay" value="PayPal invoice"> PayPal invoice</label>
+        </div>
+      </fieldset>
+
+      <fieldset class="q">
+        <legend><span class="qn">12</span> Anything else?</legend>
+        <label for="q-notes" class="sr-only">Anything else?</label>
+        <textarea id="q-notes" name="notes" rows="3" maxlength="1500"></textarea>
+      </fieldset>
+
+      <fieldset class="q">
+        <legend><span class="qn">13</span> Confirm</legend>
+        <label class="check"><input type="checkbox" id="q-ack" name="ack" required> <span>I understand everything is AI-assisted and payment is 100% upfront before work starts. <span class="req">(required)</span></span></label>
+      </fieldset>
+
+      <div class="estimate" id="estimate" aria-live="polite">
+        <span class="est-label">Rough estimate</span>
+        <strong id="est-text">Pick a product to see an estimate</strong>
+        <small id="est-detail"></small>
+      </div>
+
+      <p class="form-error" id="form-error" role="alert" hidden></p>
+      <p class="notice" id="trim-note" hidden></p>
+
+      <div class="actions">
+        <button type="submit" class="cta">Open X DM with my request</button>
+        <button type="button" class="ghost" id="copy-btn">📋 Copy request</button>
+      </div>
+      <p class="copy-status" id="copy-status" role="status" aria-live="polite"></p>
+      <p class="hint fallback">If the DM doesn't open, copy your request and DM <a href="https://x.com/ToothBeskar" target="_blank" rel="noopener">@ToothBeskar</a>.</p>
+
+      <details class="preview">
+        <summary>Preview your message</summary>
+        <pre id="dm-preview"></pre>
+      </details>
+    </form>
+  </div>
+</section>
+
 <section class="order">
   <p>📩 To order, DM @ToothBeskar with what you want, your refs, and your deadline.</p>
   <a class="cta" href="https://x.com/ToothBeskar" target="_blank" rel="noopener">Order: DM @ToothBeskar</a>
@@ -163,5 +351,6 @@
   </nav>
   <p><span class="badge18">18+</span> Adult content may be offered. All characters are adults. AI-assisted work, finished by hand.</p>
 </footer>
+<script src="quote.js" defer></script>
 </body>
 </html>

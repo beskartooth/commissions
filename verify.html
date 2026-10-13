@@ -93,6 +93,7 @@
     details.push('rush: ' + (req.rush ? 'yes (+50%)' : 'no'));
     priceBox.innerHTML = '<h2>' + (same ? '✅ Price matches the price list' : '❌ Price doesn\'t match the price list') + '</h2><dl>' +
       row('Item', esc(p.label) + ' <span class="hint">(' + esc(p.cat) + ')</span>') +
+      (p.retired ? row('Note', '⚠️ This item is no longer offered. Re-quote by DM.') : '') +
       row('Options', esc(details.join(' · '))) +
       row('Correct estimate', '<span id="correct">' + esc(est.quoted ? 'Quoted by DM' : '$' + est.total) + '</span>') +
       row('Page estimate in DM', esc(pasted || '(missing)')) + '</dl>' +

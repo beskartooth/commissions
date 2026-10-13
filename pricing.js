@@ -13,11 +13,12 @@
 (function (root) {
   'use strict';
 
+  // retired: no longer offered (removed from the form); kept so old DMs still parse and verify.
   // kind: still | anim | other (decides the spicy add-on). qty: which quantity field applies.
   var PRODUCTS = {
     'img-still':    { cat: 'Images', label: 'Character still: one character, plain background', price: 10, kind: 'still', qty: 'chars' },
     'img-scene':    { cat: 'Images', label: 'Full scene: character plus custom background', price: 18, kind: 'still', qty: 'chars' },
-    'img-ych':      { cat: 'Images', label: 'Static YCH slot (your OC in my base)', price: 15, kind: 'still' },
+    'img-ych':      { cat: 'Images', label: 'Static YCH slot (your OC in my base)', price: 15, kind: 'still', retired: true },
     'img-edit':     { cat: 'Images', label: 'Outfit or pose edit of your existing ref (one change)', price: 6, kind: 'still', qty: 'edits' },
     'img-design':   { cat: 'Images', label: 'New character design + ref sheet (designed from scratch: front/back turnaround, colors, markings)', price: 50, kind: 'still', refSheet: true },
     'img-refsheet': { cat: 'Images', label: 'Ref sheet of your existing character (front/back turnaround matched to your refs)', price: 40, kind: 'still', refSheet: true },
@@ -25,8 +26,8 @@
     'vid-ych':      { cat: 'Video & Loops', label: 'Animated YCH slot', price: 40, kind: 'anim' },
     'vid-clip':     { cat: 'Video & Loops', label: 'Custom short clip, 5–10 s, single shot', price: 50, kind: 'anim' },
     'vid-emote':    { cat: 'Video & Loops', label: 'Animated emotes', price: 8, kind: 'anim', qty: 'emotes' },
-    'app-reskin':   { cat: 'Simple Web Apps', label: 'Reskin of an existing tool (your art, colors, sounds)', price: 40, kind: 'other' },
-    'app-custom':   { cat: 'Simple Web Apps', label: 'Custom one-page app (timer, counter, tracker, mini game)', price: 90, kind: 'other' },
+    'app-reskin':   { cat: 'Simple Web Apps', label: 'Reskin of an existing tool (your art, colors, sounds)', price: 40, kind: 'other', retired: true },
+    'app-custom':   { cat: 'Simple Web Apps', label: 'Custom one-page app (timer, counter, tracker, mini game)', price: 180, kind: 'other' },
     'app-update':   { cat: 'Simple Web Apps', label: 'Small updates later', price: 15, kind: 'other', qty: 'updates' },
     'mus-loop':     { cat: 'Music', label: 'Seamless loop track, 60–120 s (menu, stream, game)', price: 20, kind: 'other', qty: 'tracks' },
     'mus-pack':     { cat: 'Music', label: '3-track pack (for example menu, gameplay, boss)', price: 50, kind: 'other' },

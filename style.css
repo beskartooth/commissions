@@ -9,9 +9,10 @@ html{-webkit-text-size-adjust:100%}
 body{margin:0;background:radial-gradient(1200px 600px at 80% -10%,#2a2140 0%,transparent 60%),radial-gradient(900px 500px at -10% 30%,#2a1e2c 0%,transparent 55%),var(--bg);
   color:var(--text);font:16px/1.5 ui-rounded,"SF Pro Rounded","Nunito","Segoe UI",system-ui,-apple-system,Roboto,sans-serif;}
 a{color:var(--purple2)}
-.cover{max-width:1100px;margin:1rem auto 0;padding:0 1.2rem}
-.cover img{display:block;width:100%;height:auto;border-radius:22px;background:#efedf4;border:3px solid var(--purple);
+/* Same on-screen frame as the old .hero-art: min(70vw, 340px), 360px from 900px up. */
+.cover{margin:1rem auto 0;width:min(70vw,340px);max-width:340px;padding:10px;background:#efedf4;border-radius:28px;border:3px solid var(--purple);
   box-shadow:0 0 0 6px rgba(232,189,84,.18),0 20px 50px -20px rgba(138,92,246,.6)}
+.cover img{display:block;width:100%;max-width:100%;height:auto;max-height:calc((min(70vw, 340px) - 26px) * 1.7778);margin:0 auto;border-radius:20px;object-fit:contain}
 .hero{max-width:1100px;margin:0 auto;padding:1.4rem 1.2rem .4rem}
 .kicker{margin:0;color:var(--gold);font-size:.85rem;font-weight:700;letter-spacing:.02em}
 h1{font-size:clamp(2.4rem,9vw,4.2rem);line-height:1.05;margin:.3rem 0 .4rem;letter-spacing:-.02em}
@@ -48,9 +49,11 @@ footer nav a:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
   .steps ol{grid-template-columns:repeat(3,1fr)}
 }
 @media (max-width:699px){
-  .cover{margin-top:.75rem}
-  .cover img{border-width:2px;border-radius:16px;box-shadow:0 0 0 4px rgba(232,189,84,.18),0 14px 30px -18px rgba(138,92,246,.6)}
   .hero{padding-top:1.1rem}
   td:last-child{font-size:1.2rem}
+}
+@media (min-width:900px){
+  .cover{width:360px;max-width:360px}
+  .cover img{max-height:calc((360px - 26px) * 1.7778)}
 }
 @media (prefers-reduced-motion:reduce){.cta{transition:none}}
